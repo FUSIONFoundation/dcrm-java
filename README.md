@@ -2,7 +2,7 @@
 
 FUSION&#39;s Distributed Control Rights Management technology uses distributed computing, homomorphic encryption, zero knowledge proofs and other cryptographic techniques to replace the complete private key with private key fragments. Distributed generation of a valid public key, address and transaction signature in accordance with the targeted blockchain ECDSA algorithm and specification is implemented. With this technology, the management and operation of the crypto-assets on all different blockchains may be realized on FUSION. DCRM is the core technology facilitating the management of assets across heterogeneous blockchains.
 
-To learn more about DCRM, please read the [FUSION DCRM Verification v1 Guide.pdf](https://github.com/FUSIONFoundation/fusion-dcrm/).
+To learn more about DCRM, please read the [FUSION DCRM Verification v1 Guide.pdf](https://github.com/FUSIONFoundation/dcrm/).
 
 *Note: FUSIONDCRM is considered verification program. We make no warranties or guarantees of its security or stability.*
 
