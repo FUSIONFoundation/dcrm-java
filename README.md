@@ -6,6 +6,15 @@ To learn more about DCRM, please read the [FUSION DCRM Verification v1 Guide.pdf
 
 *Note: FUSIONDCRM is considered verification program. We make no warranties or guarantees of its security or stability.*
 
+## Release info 
+**FUSIONDCRM-v2.0** uses the same DCRM technology as the previous version, and build multiple virtual users locally to demonstrate how to complete the distributed execution of the DCRM. On the basis of the previous version, the new version completes a transfer transaction signature for assets controlled by distributed private key, and generates the RAW transaction. By broadcasting the original transaction to the target main chain, the user can transfer these assets, thus making the user have a more intuitive experience of dcrm technology.
+
+This release shows the DCRM technology's support for Ethereum. 
+
+We will continue to update v2.0 in the near future. In v2.1, we will implement support for the DCRM technology used in both Ethereum and Bitcoin.
+
+In the next phase, we will release **v3.0** of the DCRM verification. In this release, we plan to build a distributed DCRM verification network based on P2P network environment. At that time, users can participate and experience the complete process of distributed generation of private keys, public keys and transaction signatures in a way that acts as one of the nodes.
+
 ## 1. Description of the verification
 
 ### 1.1 Function of distributed generation
@@ -56,7 +65,7 @@ In order to implement and demonstrate verification program more rapidly, we use 
 In anticipation of the Lock-in and management of real assets, Distributed Control Rights Management will be tested in the FUSION testnet to demonstrate and tune, and so as to get the optimal implementation.
 
 
-## 2. Compilation and test on Windows
+## 2. Compilation on Windows
 
 ### 2.1 Contents
 
@@ -73,6 +82,7 @@ Windows environment configuration.
 Download address:
 
 [http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+ 
  And configure system environment variables based on where JDK is actually installed, such as:
 
 And put the `gmp.dll` in this directory: `jre/bin`.
@@ -103,7 +113,7 @@ Double-click one of them, you can see the source code in the middle of the Eclip
 The output information during execution is displayed in the &quot;Console&quot; window.
 
 
-## 3. Compilation and test on Mac OS
+## 3. Compilation on Mac OS
 
 ### 3.1 Contents
 
@@ -159,7 +169,7 @@ The solution is to change the parameters of the main class in `launch.json` as t
 
 3. After inputting the signature message and number of nodes in the debugging terminal window, output the execution state information content and pass the test.
 
-## 4. Compilation and test on Linux
+## 4. Compilation on Linux
 
 ### 4.1 Contents
 
@@ -187,3 +197,7 @@ Download address:
 ### 4.3 Compile and execute
 
 Run the program in the Eclipse is as same as running on Windows.
+
+## 5 How to test
+
+[User Test Guide](https://github.com/zhaojun-sh/fusion-dcrm-java/wiki/User-Test-Guide)

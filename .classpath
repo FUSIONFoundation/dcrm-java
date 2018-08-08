@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="Lib/bcprov-ext-jdk15on-154.jar"/>
+	<classpathentry kind="lib" path="Lib/bcprov-jdk15on-154.jar"/>
+	<classpathentry kind="lib" path="Lib/jna-4.5.1.jar"/>
+	<classpathentry kind="lib" path="Lib/Jpair_v1.03.jar"/>
+	<classpathentry kind="lib" path="Lib/jpbc-api-2.0.0.jar"/>
+	<classpathentry kind="lib" path="Lib/jpbc-benchmark-2.0.0.jar"/>
+	<classpathentry kind="lib" path="Lib/jpbc-crypto-2.0.0.jar"/>
+	<classpathentry kind="lib" path="Lib/jpbc-mm-2.0.0.jar"/>
+	<classpathentry kind="lib" path="Lib/jpbc-pbc-2.0.0.jar"/>
+	<classpathentry kind="lib" path="Lib/jpbc-plaf-2.0.0.jar"/>
+	<classpathentry kind="lib" path="Lib/commons-lang3-3.7.jar"/>
+	<classpathentry kind="lib" path="Lib/config-1.3.1.jar"/>
+	<classpathentry kind="lib" path="Lib/core-1.58.0.0.jar"/>
+	<classpathentry kind="lib" path="Lib/core-2.1.0.jar"/>
+	<classpathentry kind="lib" path="Lib/ethereumj-core-1.7.2-RELEASE.jar"/>
+	<classpathentry kind="lib" path="Lib/log4j-1.2.17.jar"/>
+	<classpathentry kind="lib" path="Lib/prov-1.58.0.0.jar"/>
+	<classpathentry kind="lib" path="Lib/slf4j-api-1.7.25.jar"/>
+	<classpathentry kind="lib" path="Lib/slf4j-log4j12-1.7.25.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
