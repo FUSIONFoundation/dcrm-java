@@ -200,4 +200,4 @@ Run the program in the Eclipse is as same as running on Windows.
 
 ## 5 How to test
 
-[User Test Guide](https://github.com/zhaojun-sh/fusion-dcrm-java/wiki/User-Test-Guide)
+[User Test Guide](https://github.com/FUSIONFoundation/dcrm/wiki/User-Test-Guide)
