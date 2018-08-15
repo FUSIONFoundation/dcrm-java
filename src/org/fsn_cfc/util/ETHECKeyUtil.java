@@ -5,7 +5,7 @@ import java.math.BigInteger;
 import org.ethereum.crypto.ECKey;
 
 
-public class ECKeyUtil {
+public class ETHECKeyUtil {
 
 	public static byte[] recoverPubBytesFromSignature(int recId, BigInteger r, BigInteger s, byte[] messageHash) {
 		

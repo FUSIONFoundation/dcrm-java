@@ -28,6 +28,7 @@ public class User {
 	
 	//kgRoundThree
 	BigInteger encX;
+    String pkStr;
     ECPoint pk;
 	
 	
@@ -227,11 +228,17 @@ public class User {
 	public void setEncX(BigInteger encX) {
 		this.encX = encX;
 	}
-	public ECPoint getPk() {
-		return pk;
+	public String getPkStr() {
+		return pkStr;
+	}
+	public void setPkStr(String pkStr) {
+		this.pkStr = pkStr;
 	}
 	public void setPk(ECPoint pk) {
 		this.pk = pk;
+	}
+	public ECPoint getPk() {
+		return pk;
 	}
 	
 }

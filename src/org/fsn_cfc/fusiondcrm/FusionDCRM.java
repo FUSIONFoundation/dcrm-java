@@ -1,29 +1,3 @@
-/*
-This software is a demonstration and verification of the FUSION’s distributed 
-private key management technology and the core function of realizing cross-chain 
-asset management.
-Copyright（C） 2018  FUSION Foundation
-This program is open source and is licensed by the FUSION Foundation, the copyright 
-owner, to the FUSION Community for free use and download. Users can copy and 
-disseminate the software, subject to the retention of this copyright notices. 
-Users can modify the software, and the modification part can add author’s information 
-and independent copyright notice, but the source code of the modified part must be 
-fed back to FUSION community in an open source way, and be licensed to FUSION community 
-and community members to use it freely. Users can use part or all of this software 
-in their program, but at the same time, the part of the reference should be clearly 
-marked with this copyright notice. Users are required to contact FUSION Foundation, 
-the copyright owner, and obtain authorization when they want to use part or all of this 
-software for commercial purposes.
-The purpose of issuing this procedure is to make it useful, but without any warranty, 
-and even without implied warranties for specific purposes.
-FUSION foundation, as the copyright owner, reserves the right to claim the software 
-copyright and the right to change the copyright notice, but all changes do not affect 
-the license to the FUSION community.
-The copyright notice is attached to the source code of this software. If necessary, 
-you can also contact the FUSION Foundation (https://www.fusion.org/), and add 
-information on how to keep in touch with you.
-*/
-
 package org.fsn_cfc.fusiondcrm;
 
 import java.math.BigInteger;
@@ -50,6 +24,8 @@ public class FusionDCRM {
 	
 	
 	
+	
+	
 	public static List<User> keyGenerate(int userCnt) {
 		
 		List<User> userList = new ArrayList<User>();
@@ -60,6 +36,49 @@ public class FusionDCRM {
 			
 		return userList;
 	}
+	
+	
+	
+	
+	
+	public static ECDSASignature sign(List<User> userList, BigInteger encX, String message, String tokenType) {
+		
+		signRoudOne(userList, encX);
+		signRoudTwo(userList, encX);
+		
+		Boolean roudThreeAborted = signRoundThree(userList, encX);
+		if(roudThreeAborted) {
+			System.out.println("FAIL to SIGN at FusionDCRM.java: sign()");
+			return null;
+		}
+		
+
+		BigInteger u = calculateU(userList);
+		BigInteger v = calculateV(userList);
+		
+		
+		signRoundFour(userList, u);
+		
+		
+		ECDSASignature signature = signRoundFive(userList, u, v, message, tokenType);
+		if(signature.getRoudFiveAborted()) {
+			System.out.println("FAIL to SIGN at FusionDCRM.java: sign()");
+			return null;
+		}
+		
+		return signature;
+	}
+	
+	
+
+	
+	
+	
+	public static Boolean verify(ECDSASignature signature, String message, ECPoint pk) {
+		
+		return signature.verify(message, pk);
+	}
+
 	
 	
 	public static void kgRoundOne(List<User> userList, int userCnt) {
@@ -139,60 +158,25 @@ public class FusionDCRM {
 						"\n KG Round 3, User "+i+"does not pass verifying Zero-Knowledge!");
 			}			
 		}
-		for (int i = 0; i < userList.size(); i++) {
-			userList.get(i).setEncX(calculateEncPrivateKey(userList));
-			userList.get(i).setPk(calculatePubKey(userList));
-		}
-	}
-	
-	
-	
-	
-	public static ECPoint calculatePubKey(List<User> userList) {
 		
-		ECPoint pubKey = userList.get(0).getyShare();
 		
-		for(int i = 1; i < userList.size() ; i++) {
-			pubKey = pubKey.add(userList.get(i).getyShare());
-		}
+		ECPoint pubKey = calculatePubKey(userList);
+		BigInteger encX = calculateEncPrivateKey(userList);
 		
 		ECPoint pkTem = pubKey.normalize();
-		String xPk_ = OtherUtil.convertBytesToHexString(pkTem.getX().toBigInteger().toByteArray());
-		String yPk_ = OtherUtil.convertBytesToHexString(pkTem.getY().toBigInteger().toByteArray());
-		String xPk = OtherUtil.subLast64(xPk_);
-		String yPk = OtherUtil.subLast64(yPk_);
+		String xPk = OtherUtil.formatString(pkTem.getX().toBigInteger().toString(16), 64);
+		String yPk = OtherUtil.formatString(pkTem.getY().toBigInteger().toString(16), 64);
 		
-		System.out.println("\n--Info: Calculate the Public Key"+
-				"\n PublicKey: "+"("+xPk+","+yPk+")");
 		
-		return pubKey;
-	}
-	
-	
-	
-	
-	public static BigInteger calculateEncPrivateKey(List<User> userList) {
-		
-		BigInteger encX = userList.get(0).getEncXShare();
-		
-		for(int i = 1; i < userList.size() ; i++) {
-			encX = OtherParams.PaillEnc.cipherAdd(encX, userList.get(i).getEncXShare());
+		for (int i = 0; i < userList.size(); i++) {
+			userList.get(i).setEncX(encX);
+			userList.get(i).setPk(pkTem);
+			userList.get(i).setPkStr(xPk+yPk);
 		}
-		
-		System.out.println("\n--Info: Calculate the Encrypted Private Key"+
-				"\n EncPrivateKey: "+encX);
-
-		
-		BigInteger xTem = OtherParams.PaillDec.decrypt(encX).mod(BitcoinParams.q);
-		String xTemHex = OtherUtil.subLast64(OtherUtil.convertBytesToHexString(xTem.toByteArray()));
-		
-		return encX;
 	}
 	
 	
-	
-	
-	
+
 	public static void signRoudOne(List<User> userList, BigInteger encX) {
 		
 		BigInteger rhoI, rhoIRnd, uI, vI;
@@ -231,6 +215,8 @@ public class FusionDCRM {
 	
 	
 	
+
+	
 	
 	public static void signRoudTwo(List<User> userList, BigInteger encX) {
 	
@@ -247,39 +233,8 @@ public class FusionDCRM {
 		}
 	}
 
-	
-	
 
-	public static BigInteger calculateU(List<User> userList) {
-		BigInteger u;
-		
-		u = userList.get(0).getOpenUiVi().getSecrets()[0];
-		for (int i = 1; i < userList.size(); i++) {
-			u = OtherParams.PaillEnc.cipherAdd(u, userList.get(i).getOpenUiVi().getSecrets()[0]);
-		}
-
-		System.out.println("\n--Info: Calculate the Encrypted Inner-Data u"+
-				"\n u: "+u);
-		
-		return u;
-	}
 	
-	
-	
-	public static BigInteger calculateV(List<User> userList) {
-		BigInteger v;
-		
-		v = userList.get(0).getOpenUiVi().getSecrets()[1];
-		for (int i = 1; i < userList.size(); i++) {
-			v = OtherParams.PaillEnc.cipherAdd(v, userList.get(i).getOpenUiVi().getSecrets()[1]);
-		}
-
-		System.out.println("\n--Info: Calculate the Encrypted Inner-Data v"+
-				"\n v: "+v);
-		
-		return v;
-	}
-
 	
 	
 	
@@ -356,10 +311,7 @@ public class FusionDCRM {
 	}
 	
 	
-	
-	
-	
-	
+
 	public static void signRoundFour(List<User> userList, BigInteger u) {
 
 		ZkpSignTwo zkp2;
@@ -377,6 +329,145 @@ public class FusionDCRM {
 	}
 	
 	
+	
+	
+
+	
+	public static ECDSASignature signRoundFive(List<User> userList, BigInteger u, BigInteger v, String message, String tokenType) {
+		
+		ECDSASignature signature = new ECDSASignature();		
+		Boolean aborted = false;		
+		
+		for (int i = 0; i < userList.size(); i++) {
+			if (!MTDCommitment.checkcommitment(userList.get(i).getCmtRiWi(), userList.get(i).getOpenRiWi(), OtherParams.MPK)) {
+				aborted = true; 
+				System.out.println("\n##Error####################: "+
+						"\n SignRound 5, User "+i+"does not pass checking Commitment!");
+				signature.setRoudFiveAborted(aborted);
+			}
+		}
+		
+		for (int i = 0; i < userList.size(); i++) {
+			if (!userList.get(i).getZkp_i2().verify(OtherParams.ZKParams, BitcoinParams.CURVE, 
+					BitcoinParams.CURVE.getCurve().decodePoint(userList.get(i).getOpenRiWi().getSecrets()[0].toByteArray()), 
+					u, userList.get(i).getOpenRiWi().getSecrets()[1])){
+				aborted = true;
+				System.out.println("\n##Error####################: "+
+						"\n SignRound 5, User "+i+"does not pass verifying Zero-Knowledge!");
+				signature.setRoudFiveAborted(aborted);
+			}
+		}
+		
+
+		BigInteger msgDigest = new BigInteger(message, 16);
+
+		BigInteger w = calculateW(userList);
+		ECPoint R = calculateR(userList);
+				
+		BigInteger r, mu;
+		r = R.normalize().getX().toBigInteger().mod(BitcoinParams.q);
+		mu = OtherParams.PaillDec.decrypt(w).mod(BitcoinParams.q);
+		
+		BigInteger muInverse, mMultiU, rMultiV, sEnc, s;
+		muInverse = mu.modInverse(BitcoinParams.q);
+		mMultiU = OtherParams.PaillEnc.cipherMultiply(u, msgDigest);
+		rMultiV = OtherParams.PaillEnc.cipherMultiply(v, r);
+		sEnc = OtherParams.PaillEnc.cipherMultiply(OtherParams.PaillEnc.cipherAdd(mMultiU, rMultiV), muInverse);
+		s = OtherParams.PaillDec.decrypt(sEnc).mod(BitcoinParams.q);
+
+		signature.setRoudFiveAborted(aborted);
+		signature.setR(r);
+		signature.setS(s);
+		
+        if(tokenType.equals("ETH") && s.compareTo(BitcoinParams.q.shiftRight(1))>0) {
+        	s = BitcoinParams.q.subtract(s);
+        	signature.setS(s);
+        }
+        
+		
+        if(tokenType.equals("BTC") && s.compareTo(BitcoinParams.q.shiftRight(1))>0) {
+        	s = BitcoinParams.q.subtract(s);
+        	signature.setS(s);
+        }
+        
+		return signature;
+	}
+	
+	
+	
+	public static ECPoint calculatePubKey(List<User> userList) {
+		
+		ECPoint pubKey = userList.get(0).getyShare();
+		
+		for(int i = 1; i < userList.size() ; i++) {
+			pubKey = pubKey.add(userList.get(i).getyShare());
+		}
+		
+		ECPoint pkTem = pubKey.normalize();
+		String xPk_ = OtherUtil.convertBytesToHexString(pkTem.getX().toBigInteger().toByteArray());
+		String yPk_ = OtherUtil.convertBytesToHexString(pkTem.getY().toBigInteger().toByteArray());
+		String xPk = OtherUtil.subLast64(xPk_);
+		String yPk = OtherUtil.subLast64(yPk_);
+		
+		System.out.println("\n--Info: Calculate the Public Key"+
+				"\n PublicKey: "+"("+xPk+","+yPk+")");
+		
+		return pubKey;
+	}
+	
+	
+	
+	
+	public static BigInteger calculateEncPrivateKey(List<User> userList) {
+		
+		BigInteger encX = userList.get(0).getEncXShare();
+		
+		for(int i = 1; i < userList.size() ; i++) {
+			encX = OtherParams.PaillEnc.cipherAdd(encX, userList.get(i).getEncXShare());
+		}
+		
+		System.out.println("\n--Info: Calculate the Encrypted Private Key"+
+				"\n EncPrivateKey: "+encX);
+		
+		return encX;
+	}
+	
+	
+	
+	
+	
+	
+
+	public static BigInteger calculateU(List<User> userList) {
+		BigInteger u;
+		
+		u = userList.get(0).getOpenUiVi().getSecrets()[0];
+		for (int i = 1; i < userList.size(); i++) {
+			u = OtherParams.PaillEnc.cipherAdd(u, userList.get(i).getOpenUiVi().getSecrets()[0]);
+		}
+
+		System.out.println("\n--Info: Calculate the Encrypted Inner-Data u"+
+				"\n u: "+u);
+		
+		return u;
+	}
+	
+	
+	
+	public static BigInteger calculateV(List<User> userList) {
+		BigInteger v;
+		
+		v = userList.get(0).getOpenUiVi().getSecrets()[1];
+		for (int i = 1; i < userList.size(); i++) {
+			v = OtherParams.PaillEnc.cipherAdd(v, userList.get(i).getOpenUiVi().getSecrets()[1]);
+		}
+
+		System.out.println("\n--Info: Calculate the Encrypted Inner-Data v"+
+				"\n v: "+v);
+		
+		return v;
+	}
+
 	
 	
 	
@@ -414,107 +505,5 @@ public class FusionDCRM {
 		
 		return R;
 	}
-	
-	
-	
-	public static ECDSASignature signRoundFive(List<User> userList, BigInteger u, BigInteger v, String message) {
-		
-		ECDSASignature signature = new ECDSASignature();		
-		Boolean aborted = false;		
-		
-		for (int i = 0; i < userList.size(); i++) {
-			if (!MTDCommitment.checkcommitment(userList.get(i).getCmtRiWi(), userList.get(i).getOpenRiWi(), OtherParams.MPK)) {
-				aborted = true; 
-				System.out.println("\n##Error####################: "+
-						"\n SignRound 5, User "+i+"does not pass checking Commitment!");
-				signature.setRoudFiveAborted(aborted);
-			}
-		}
-		
-		for (int i = 0; i < userList.size(); i++) {
-			if (!userList.get(i).getZkp_i2().verify(OtherParams.ZKParams, BitcoinParams.CURVE, 
-					BitcoinParams.CURVE.getCurve().decodePoint(userList.get(i).getOpenRiWi().getSecrets()[0].toByteArray()), 
-					u, userList.get(i).getOpenRiWi().getSecrets()[1])){
-				aborted = true;
-				System.out.println("\n##Error####################: "+
-						"\n SignRound 5, User "+i+"does not pass verifying Zero-Knowledge!");
-				signature.setRoudFiveAborted(aborted);
-			}
-		}
-		
-
-
-		BigInteger w = calculateW(userList);
-		ECPoint R = calculateR(userList);
-				
-		BigInteger r, mu;
-		
-		r = R.normalize().getX().toBigInteger().mod(BitcoinParams.q);
-		
-		mu = OtherParams.PaillDec.decrypt(w).mod(BitcoinParams.q);
-		
-		BigInteger muInverse, mMultiU, rMultiV, sEnc, s;
-		
-		muInverse = mu.modInverse(BitcoinParams.q);
-		
-		BigInteger msgDigest = new BigInteger(message, 16);
-		
-		mMultiU = OtherParams.PaillEnc.cipherMultiply(u, msgDigest);
-		
-		rMultiV = OtherParams.PaillEnc.cipherMultiply(v, r);
-		
-		sEnc = OtherParams.PaillEnc.cipherMultiply(OtherParams.PaillEnc.cipherAdd(mMultiU, rMultiV), muInverse);
-		
-		s = OtherParams.PaillDec.decrypt(sEnc).mod(BitcoinParams.q);
-
-		signature.setRoudFiveAborted(aborted);
-		signature.setR(r);
-		signature.setS(s);
-		
-		
-        if(s.compareTo(BitcoinParams.q.shiftRight(1))>0) {
-        	s = BitcoinParams.q.subtract(s);
-        	signature.setS(s);
-        }
-        
-		return signature;
-	}
-	
-	
-	
-	
-	public static ECDSASignature sign(List<User> userList, BigInteger encX, String message) {
-		
-		signRoudOne(userList, encX);
-		signRoudTwo(userList, encX);
-		
-		Boolean roudThreeAborted = signRoundThree(userList, encX);
-		if(roudThreeAborted) {
-			return null;
-		}
-		
-
-		BigInteger u = calculateU(userList);
-		BigInteger v = calculateV(userList);
-		
-		
-		signRoundFour(userList, u);
-		
-		
-		ECDSASignature signature = signRoundFive(userList, u, v, message);
-		if(signature.getRoudFiveAborted()) {
-			return null;
-		}
-        
-		
-		return signature;
-	}
-	
-	
-	public static Boolean verify(ECDSASignature signature, String message, ECPoint pk) {
-		
-		return signature.verify(message, pk);
-	}
-
 	
 }

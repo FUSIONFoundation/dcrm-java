@@ -136,4 +136,14 @@ public class OtherUtil {
 	}
 	
 	
+	public static String formatString(String str, int len) {
+		if(str.length() < len) {
+			int strLen = str.length();
+			for(int i = 0 ; i < len-strLen ; i++) {
+				str = "0" + str;
+			}
+		}
+		return str;
+	}
+	
 }
